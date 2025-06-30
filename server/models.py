@@ -57,9 +57,30 @@ class ResumeBase(BaseModel):
 class ResumeCreate(ResumeBase):
     pass
 
+class ResumeUpdate(BaseModel):
+    fullName: Optional[str]
+    email: Optional[EmailStr]
+    phone: Optional[str]
+    linkedInURL: Optional[str]
+    portfolioURL: Optional[str]
+    summary: Optional[str]
+    skills: Optional[str]
+    education: Optional[List[Education]]
+    experience: Optional[List[Experience]]
+    volunteer: Optional[List[Volunteer]]
+    certifications: Optional[List[Certification]]
+
 class Resume(ResumeBase):
-    id: PyObjectId = Field(default_factory=PyObjectId, alias="_id")
+    id: str = Field(default_factory=lambda: str(PyObjectId()), alias="_id")
 
     class Config:
         allow_population_by_field_name = True
         json_encoders = {ObjectId: str}
+
+    @classmethod
+    def from_doc(cls, doc):
+        if not doc:
+            return None
+        doc["id"] = str(doc["_id"])
+        doc.pop("_id", None)
+        return cls(**doc)

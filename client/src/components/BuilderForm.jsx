@@ -1,7 +1,7 @@
 import React, {useState} from 'react'
 import "../index.css"
 
-const API_URL = "http://localhost:8001/resume"
+const API_URL = "http://localhost:8000/resume"
 
 const BuilderForm = () => {
     const [formData, setFormData] = useState({
@@ -66,10 +66,27 @@ const BuilderForm = () => {
     };
  
 
-    const handleSubmit = e =>{
-        e.preventDefault();
-        console.log("Resume Data:", formData)
+    const handleSubmit = async e => {
+    e.preventDefault();
+    try {
+        const response = await fetch(API_URL, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(formData)
+        });
+        const data = await response.json();
+        if (response.ok) {
+            alert("Resume saved successfully!");
+            // Optionally reset form or handle success
+        } else {
+            alert(data.detail || "Failed to save resume.");
+        }
+    } catch (error) {
+        alert("Error submitting form: " + error.message);
     }
+};
     return (
         <form onSubmit={handleSubmit}>
             <div className="section-box">
