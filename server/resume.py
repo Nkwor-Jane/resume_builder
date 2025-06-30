@@ -38,3 +38,11 @@ async def create_resume(resume: Resume, request: Request):
         # Log the error (print or use logging)
         print(f"Error saving resume: {e}")
         raise HTTPException(status_code=500, detail="Failed to save resume")
+
+@router.get("/resume/{resume_id}")
+async def get_resume(resume: Resume):
+        resume =  resume_dal.get_resume(resume_id)
+        if not resume:
+            raise HTTPException(status_code=404, detail="Resume not found")
+        return resume
+    
