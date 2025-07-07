@@ -53,6 +53,7 @@ class ResumeBase(BaseModel):
     experience: List[Experience]
     volunteer: List[Volunteer]
     certifications: List[Certification]
+    file_path: Optional[str] = None
 
 class ResumeCreate(ResumeBase):
     pass

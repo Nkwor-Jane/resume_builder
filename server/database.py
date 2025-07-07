@@ -16,6 +16,8 @@ from bson import ObjectId
 from motor.motor_asyncio import AsyncIOMotorCollection
 from models import Resume, ResumeCreate, ResumeUpdate
 from pymongo import ReturnDocument
+from fastapi import UploadFile
+from typing import Optional, List
 
 class ResumeDAL:
     def __init__(self, collection: AsyncIOMotorCollection):
@@ -53,3 +55,21 @@ class ResumeDAL:
             return False
         result = await self.collection.delete_one({"_id": _id})
         return result.deleted_count == 1
+
+# async def save_resume_file_metadata(self, filename: str, path: str):
+#     doc = {"filename": filename, "file_path": path}
+#     result = await self.collection.insert_one(doc)
+#     return str(result.inserted_id)
+
+    async def save_resume_with_file(self, data: dict, file: UploadFile):
+        # Save file to disk or DB as needed
+        content = await file.read()
+        filename = file.filename
+
+        # Add file metadata or content to resume document
+        data["uploaded_file_name"] = filename
+        data["uploaded_file_content"] = content.decode(errors="ignore")  # or save as binary
+
+        result = await self.collection.insert_one(data)
+        doc = await self.collection.find_one({"_id": result.inserted_id})
+        return str(doc["_id"])

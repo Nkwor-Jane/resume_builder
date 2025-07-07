@@ -4,6 +4,11 @@ import "../index.css"
 const API_URL = "http://localhost:8000/resume"
 
 const BuilderForm = () => {
+    const [resumePreview, setResumePreview] = useState("");
+    const [resumeFile, setResumeFile] = useState(null);
+    const [imagePreview, setImagePreview] = useState("");
+    // const [fileInput, setFileInput] = useState(null);
+
     const [formData, setFormData] = useState({
         fullName: "",
         email: "",
@@ -66,29 +71,89 @@ const BuilderForm = () => {
     };
  
 
-    const handleSubmit = async e => {
+//     const handleSubmit = async e => {
+//     e.preventDefault();
+//     try {
+//         const response = await fetch(API_URL, {
+//             method: "POST",
+//             headers: {
+//                 "Content-Type": "application/json"
+//             },
+//             body: JSON.stringify(formData)
+//         });
+//         const data = await response.json();
+//         if (response.ok) {
+//             alert("Resume saved successfully!");
+//             // Optionally reset form or handle success
+//         } else {
+//             alert(data.detail || "Failed to save resume.");
+//         }
+//     } catch (error) {
+//         alert("Error submitting form: " + error.message);
+//     }
+// };
+// const handleSubmit = async (e) => {
+//   e.preventDefault();
+//   const form = new FormData();
+
+//   form.append("resume", new Blob([JSON.stringify(formData)], { type: "application/json" }));
+//   if (resumeFile) form.append("file", resumeFile);
+
+//   const res = await fetch(API_URL, {
+//     method: "POST",
+//     body: form,
+//   });
+
+//   const data = await res.json();
+//    if (response.ok) {
+//         alert("Resume saved successfully!");
+//          // Optionally reset form or handle success
+//     } else {
+//         alert(data.detail || "Failed to save resume.");
+//     }
+// };
+const handleImageUpload = (e) => {
+    const file = e.target.files[0];
+    if (file && file.type.startsWith("image/")) {
+        const reader = new FileReader();
+        reader.onloadend = () => setImagePreview(reader.result);
+        reader.readAsDataURL(file);
+    }
+};
+const handleSubmit = async (e) => {
     e.preventDefault();
+
+    const form = new FormData();
+    form.append("resume", JSON.stringify(formData));
+    if (resumeFile) form.append("file", resumeFile);  // `resumeFile` is the file object
+
     try {
         const response = await fetch(API_URL, {
             method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(formData)
+            body: form,
         });
-        const data = await response.json();
+        const result = await response.json();
         if (response.ok) {
-            alert("Resume saved successfully!");
-            // Optionally reset form or handle success
+            alert("Resume submitted!");
         } else {
-            alert(data.detail || "Failed to save resume.");
+            alert(result.detail || "Failed to submit resume.");
         }
     } catch (error) {
-        alert("Error submitting form: " + error.message);
+        alert("Submission error: " + error.message);
     }
 };
+
+
     return (
         <form onSubmit={handleSubmit}>
+            <div className="section-box">
+                <h2 className="text-2xl font-bold text-gray-900">Professional Image</h2>
+            <p className="text-sm text-gray-600">Upload a professional image for your resume.</p>
+            <p className="text-sm text-gray-600">Accepted formats: (.jpg, .jpeg, .png)Max size: 2MB</p>
+            <p className="text-sm text-gray-600">Image will be displayed in the top right corner of the resume.</p>
+                <input type="file" accept=".jpg,.jpeg,.png" onChange={handleImageUpload} className='cursor-pointer'/>
+                {imagePreview && <img src={imagePreview} alt="Preview" width="150" />}
+            </div>
             <div className="section-box">
                 <h2 className="text-2xl font-bold text-gray-900">Personal Information</h2>
                 <div className="gap-4 grid w-full grid-flow-col">
@@ -97,7 +162,7 @@ const BuilderForm = () => {
                     <input className="input-field" name="phone" placeholder="Phone Number" onChange={handleChange} required/>
                 </div>
                 <div className="gap-4 grid w-full grid-flow-col">
-                    <input className="input-field" name="pportfolioURL" placeholder="Portfolio URL" onChange={handleChange} required/>
+                    <input className="input-field" name="portfolioURL" placeholder="Portfolio URL" onChange={handleChange} required/>
                     <input className="input-field" name="linkedinURL" placeholder="LinkedIn URL" onChange={handleChange} required/>
                 </div>
             </div>
@@ -231,6 +296,7 @@ const BuilderForm = () => {
                 ))}
                 <button className="btn-primary"  type="button" onClick={() => addSection("certifications", 4)}>+ Add Certification</button>
             </div>
+            
             <div className="mt-4 text-center ">
                 <button className="btn-primary p-4" type="submit">Generate Resume</button>
             </div>

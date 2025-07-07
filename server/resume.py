@@ -1,11 +1,14 @@
-from fastapi import FastAPI, APIRouter, HTTPException, Request
+
+from fastapi import FastAPI, APIRouter, Form, UploadFile, File, HTTPException, Request
+from resume_service import save_resume_with_file
+import json
 from contextlib import asynccontextmanager
 import os
 from dotenv import load_dotenv
-from models import Resume
-from resume_service import save_resume
 from motor.motor_asyncio import AsyncIOMotorClient
 from database import ResumeDAL
+import json
+from resume_service import save_resume_with_file
 
 load_dotenv()
 
@@ -27,22 +30,21 @@ async def lifespan(app: FastAPI):
 
     yield
     client.close()
+
 router = APIRouter()
 
 @router.post("/resume")
-async def create_resume(resume: Resume, request: Request):
+async def create_resume(
+    request: Request,
+    resume: str = Form(...),
+    file: UploadFile = File(None)  # optional
+):
     try:
-        resume_id = await request.app.resume_dal.create_resume(resume)
-        return {"id": resume_id, "message": "Resume saved successfully"}
-    except Exception as e:
-        # Log the error (print or use logging)
-        print(f"Error saving resume: {e}")
-        raise HTTPException(status_code=500, detail="Failed to save resume")
+        resume_data = json.loads(resume)
+    except json.JSONDecodeError:
+        raise HTTPException(status_code=400, detail="Invalid resume JSON")
 
-@router.get("/resume/{resume_id}")
-async def get_resume(resume: Resume):
-        resume =  resume_dal.get_resume(resume_id)
-        if not resume:
-            raise HTTPException(status_code=404, detail="Resume not found")
-        return resume
-    
+    # You can store or process `file` here if needed
+    dal = request.app.resume_dal
+    resume_id = await save_resume_with_file(dal, resume_data, file)
+    return {"id": resume_id, "message": "Resume saved successfully"}
