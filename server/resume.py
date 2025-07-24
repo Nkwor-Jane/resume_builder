@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 from motor.motor_asyncio import AsyncIOMotorClient
 from database import ResumeDAL
 import json
-from resume_service import save_resume_with_file
+import base64
 
 load_dotenv()
 
@@ -37,14 +37,27 @@ router = APIRouter()
 async def create_resume(
     request: Request,
     resume: str = Form(...),
-    file: UploadFile = File(None)  # optional
+    file: UploadFile = File(None)
 ):
+    print(f"Received file: {file.filename if file else 'No file'}")
+
     try:
         resume_data = json.loads(resume)
     except json.JSONDecodeError:
         raise HTTPException(status_code=400, detail="Invalid resume JSON")
 
-    # You can store or process `file` here if needed
+    if file:
+        content = await file.read()
+        print(f"File content size: {len(content)} bytes")
+        encoded = base64.b64encode(content).decode("utf-8")
+        resume_data["file_name"] = file.filename
+        resume_data["file_content"] = encoded
+        print("resume_data keys:", resume_data.keys())
+        print("file_content length:", len(resume_data.get("file_content", "")))
+    else:
+        resume_data["file_name"] = None
+        resume_data["file_content"] = None  
+
     dal = request.app.resume_dal
-    resume_id = await save_resume_with_file(dal, resume_data, file)
+    resume_id = await dal.save_resume_with_file(resume_data)
     return {"id": resume_id, "message": "Resume saved successfully"}

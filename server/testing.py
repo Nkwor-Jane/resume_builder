@@ -21,9 +21,6 @@ class Book(BaseModel):
     title: str # Title must be a string
     pages: int # Pages must be an integer
     
-# @app.post("/books")
-# def create_book(book: Book):
-#     return book 
 
 @app.get("/books/{book_id}")
 async def read_book(book_id: int):

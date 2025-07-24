@@ -54,6 +54,8 @@ class ResumeBase(BaseModel):
     volunteer: List[Volunteer]
     certifications: List[Certification]
     file_path: Optional[str] = None
+    file_name: Optional[str] = None 
+    file_content: Optional[str] = None  
 
 class ResumeCreate(ResumeBase):
     pass
