@@ -2,8 +2,6 @@ from bson import ObjectId
 from motor.motor_asyncio import AsyncIOMotorCollection
 from models import Resume, ResumeCreate, ResumeUpdate
 from pymongo import ReturnDocument
-from fastapi import UploadFile
-from typing import Optional, List
 
 class ResumeDAL:
     def __init__(self, collection: AsyncIOMotorCollection):
