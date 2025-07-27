@@ -2,7 +2,7 @@ import React from 'react'
 import "../index.css";
 import { User, Award, Briefcase, GraduationCap, Heart, Plus, Trash2 } from 'lucide-react';
 
-const API_URL = "http://localhost:8000/resume"
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000/api/resume";
 
 const BuilderForm = ({ formData, setFormData, resumeFile, setResumeFile, imagePreview, setImagePreview, onPreview }) => {
     
