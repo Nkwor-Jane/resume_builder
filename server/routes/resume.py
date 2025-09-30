@@ -1,13 +1,12 @@
 
 from fastapi import FastAPI, APIRouter, Form, UploadFile, File, HTTPException, Request
-from resume_service import save_resume_with_file
+from services.resume_service import save_resume_with_file
 import json
 from contextlib import asynccontextmanager
 import os
 from dotenv import load_dotenv
 from motor.motor_asyncio import AsyncIOMotorClient
 from database import ResumeDAL
-import json
 import base64
 
 load_dotenv()

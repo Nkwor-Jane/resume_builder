@@ -3,8 +3,9 @@ from fastapi.responses import JSONResponse
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 import logging
-import resume
-from resume import lifespan
+import routes.resume as resume
+from routes.resume import lifespan
+# from genResume import genResume
 
 app = FastAPI(lifespan=lifespan)
 
@@ -44,6 +45,7 @@ app.add_middleware(
 )
 
 app.include_router(resume.router)
+# app.inclue_router(genResume.router)
 
 @app.get("/")
 def root():
